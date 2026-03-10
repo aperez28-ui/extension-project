@@ -12,7 +12,7 @@ chrome.runtime.onInstalled.addListener(() => {
     switchCountTotal: 0,
     siteHistory: [],
     currentSite: null,
-    hudCollapsed: false,
+    hudCollapsed: true,
     scrollEventTotal: 0,
     scrollEventsByHost: {},
     socialLockoutUntil: 0,

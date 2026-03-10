@@ -54,6 +54,11 @@ if (isSocialSite()) {
 function init() {
   resetSessionState();
   hud = createHud();
+  // Default to minimized HUD unless user has chosen otherwise.
+  hud.classList.add('drift-collapsed');
+  const toggleBtn = hud.querySelector('[data-act="toggle"]');
+  if (toggleBtn) toggleBtn.textContent = '+';
+  chrome.runtime.sendMessage({ type: 'SET_HUD_COLLAPSED', value: true });
   wireHudInteractions();
   hydrateContext();
   updateHud();
@@ -118,10 +123,11 @@ function hydrateContext() {
     currentSite = ctx.currentSite || currentSite;
     siteHistory = ctx.siteHistory?.length ? ctx.siteHistory : siteHistory;
     socialLockoutUntil = ctx.socialLockoutUntil || 0;
-    hud.classList.toggle('drift-collapsed', Boolean(ctx.hudCollapsed));
+    const collapsed = ctx.hudCollapsed === undefined ? true : Boolean(ctx.hudCollapsed);
+    hud.classList.toggle('drift-collapsed', collapsed);
 
     const toggleBtn = hud.querySelector('[data-act="toggle"]');
-    if (toggleBtn) toggleBtn.textContent = hud.classList.contains('drift-collapsed') ? '+' : '−';
+    if (toggleBtn) toggleBtn.textContent = collapsed ? '+' : '−';
 
     updateHud();
   });
@@ -484,6 +490,10 @@ function openTimerModal() {
 
 function openSessionFeedbackModal() {
   if (document.getElementById('drift-session-feedback')) return;
+  if (overlayOpen) {
+    const existing = document.getElementById('drift-overlay');
+    if (existing) closeOverlay(existing);
+  }
 
   const elapsed = getSessionSeconds();
   const minutes = Math.max(1, Math.floor(elapsed / 60));
