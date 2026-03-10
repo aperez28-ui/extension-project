@@ -46,7 +46,9 @@ let ignoreTimer = null;
 let hud = null;
 
 if (isSocialSite()) {
-  if (document.readyState === 'loading') {
+  if (window.top !== window.self) {
+    cleanupInjectedUi();
+  } else if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => init(), { once: true });
   } else {
     init();
