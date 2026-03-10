@@ -1,0 +1,307 @@
+#drift-hud {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 2147483645;
+  width: 256px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(247, 244, 238, 0.42), rgba(240, 233, 222, 0.34));
+  border: 1px solid rgba(201, 191, 176, 0.56);
+  box-shadow: 0 16px 32px rgba(20, 20, 20, 0.2);
+  padding: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #3f3a31;
+  backdrop-filter: blur(12px);
+}
+
+#drift-hud.drift-collapsed {
+  width: 124px;
+}
+
+#drift-hud.drift-collapsed .drift-hud-body,
+#drift-hud.drift-collapsed .drift-hud-brand {
+  display: none;
+}
+
+#drift-hud.drift-collapsed .drift-hud-head {
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+}
+
+.drift-hud-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.drift-hud-title {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6e6456;
+}
+
+.drift-hud-site {
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4a4338;
+  max-width: 165px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drift-hud-head-time {
+  display: none;
+  font-size: 14px;
+  font-weight: 700;
+  color: #3f382f;
+}
+
+#drift-hud.drift-collapsed .drift-hud-head-time {
+  display: block;
+}
+
+.drift-hud-toggle {
+  border: 1px solid #cbbfab;
+  background: rgba(242, 235, 223, 0.8);
+  color: #3f382f;
+  border-radius: 8px;
+  width: 26px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.drift-hud-body {
+  margin-top: 9px;
+}
+
+.drift-hud-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.drift-hud-row strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.drift-hud-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.drift-hud-actions button {
+  border: 1px solid #cdbfa9;
+  background: rgba(241, 232, 219, 0.82);
+  color: #3f382f;
+  border-radius: 10px;
+  padding: 5px 8px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.drift-end-btn {
+  grid-column: 1 / -1;
+}
+
+.drift-sites-wrap {
+  margin-top: 10px;
+}
+
+.drift-sites-wrap p {
+  margin: 0 0 5px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: #7b7164;
+}
+
+.drift-sites {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.drift-site-btn {
+  border: 1px solid #cdbfa9;
+  background: rgba(241, 232, 219, 0.82);
+  color: #3f382f;
+  border-radius: 10px;
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  max-width: 100%;
+}
+
+#drift-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  background: rgba(34, 31, 26, 0.36);
+  backdrop-filter: blur(5px);
+  display: grid;
+  place-items: center;
+  animation: drift-fade 620ms ease;
+}
+
+#drift-timer-modal.drift-inline-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483646;
+  background: rgba(34, 31, 26, 0.32);
+  backdrop-filter: blur(5px);
+  display: grid;
+  place-items: center;
+}
+
+.drift-modal-card {
+  width: min(92vw, 360px);
+}
+
+.drift-modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.drift-modal-actions button {
+  margin-top: 10px;
+}
+
+.drift-feedback-list {
+  margin: 8px 0 2px;
+  padding-left: 18px;
+  color: #4f473c;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+#drift-overlay.drift-soft {
+  background: rgba(34, 31, 26, 0.25);
+  animation-duration: 1250ms;
+}
+
+@keyframes drift-fade {
+  from {
+    opacity: 0;
+    filter: blur(7px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+.drift-card {
+  width: min(92vw, 390px);
+  background: #f8f5ee;
+  border: 1px solid #d7cdbf;
+  border-radius: 22px;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.2);
+}
+
+.drift-chip {
+  margin: 0 0 8px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #766c5f;
+}
+
+.drift-card h2 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.02;
+  color: #353028;
+}
+
+.drift-card p {
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #4f473c;
+}
+
+.drift-field {
+  display: block;
+  margin-top: 10px;
+}
+
+.drift-field span {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: #5d5447;
+}
+
+.drift-field select,
+.drift-field input,
+.drift-field textarea {
+  width: 100%;
+  border: 1px solid #cec0ab;
+  border-radius: 10px;
+  background: #fbf8f2;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: #3e372f;
+  font-family: inherit;
+}
+
+.drift-field-invalid {
+  border-color: #9f8f77 !important;
+  background: #f7efe4 !important;
+}
+
+.drift-error {
+  margin-top: 8px;
+  margin-bottom: 2px;
+  font-size: 12px;
+  color: #6e4f2f;
+}
+
+.drift-card button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #cbbca8;
+  background: #f1e8db;
+  color: #3f382f;
+  cursor: pointer;
+}
+
+.drift-card button:hover,
+.drift-site-btn:hover,
+.drift-hud-toggle:hover,
+.drift-hud-actions button:hover {
+  background: #e7dac7;
+}
+
+.drift-card .drift-prev {
+  background: #f6eee3;
+}
+
+.drift-card small {
+  display: block;
+  margin-top: 12px;
+  font-size: 11px;
+  color: #786d5f;
+}
+
+#drift-timer {
+  font-size: 40px;
+  margin: 14px 0;
+  letter-spacing: 0.02em;
+}
