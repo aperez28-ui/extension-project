@@ -46,12 +46,17 @@ let ignoreTimer = null;
 let hud = null;
 
 if (isSocialSite()) {
-  init();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => init(), { once: true });
+  } else {
+    init();
+  }
 } else {
   cleanupInjectedUi();
 }
 
 function init() {
+  if (!document.documentElement) return;
   resetSessionState();
   hud = createHud();
   // Default to minimized HUD unless user has chosen otherwise.
