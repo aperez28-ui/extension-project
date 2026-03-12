@@ -35,6 +35,7 @@ let sessionFeedbackLog = [];
 let focusTimerDurationSeconds = 0;
 let focusTimerEndTs = null;
 let socialLockoutUntil = 0;
+let nextCheckupAtTs = 0;
 
 let currentSite = { host: location.hostname, url: location.href };
 let siteHistory = [{ host: location.hostname, url: location.href }];
@@ -278,7 +279,9 @@ function canPrompt() {
 function evaluateDrift() {
   if (overlayOpen || interactionLocked || closedForNow || getLockoutRemainingSeconds() > 0) return;
 
-  const longScroll = scrollMomentumSeconds >= getScrollCheckupSeconds();
+  const checkupSeconds = getScrollCheckupSeconds();
+  const checkupReady = !nextCheckupAtTs || Date.now() >= nextCheckupAtTs;
+  const longScroll = checkupReady && scrollMomentumSeconds >= checkupSeconds;
   const lateNight = isAfterNightCutoff() && getSessionSeconds() >= DRIFT.NIGHTLY_OVERUSE_SECONDS;
 
   if (!canPrompt()) return;
@@ -317,7 +320,6 @@ function triggerPrompt(reason, force = false) {
           <option value="calm">Calm</option>
           <option value="restless">Restless</option>
           <option value="overwhelmed">Overwhelmed</option>
-          <option value="tired">Tired</option>
           <option value="focused">Focused</option>
         </select>
       </label>
@@ -385,6 +387,7 @@ function triggerPrompt(reason, force = false) {
       reflectionChoice = 'continue_intentionally';
       intentionalResets += 1;
       scrollMomentumSeconds = 0;
+      nextCheckupAtTs = Date.now() + getScrollCheckupSeconds() * 1000;
       closeOverlay(overlay);
       return;
     }
@@ -659,6 +662,7 @@ function resetSessionState() {
   sessionFeedbackLog = [];
   focusTimerDurationSeconds = 0;
   focusTimerEndTs = null;
+  nextCheckupAtTs = 0;
   overlayOpen = false;
   interactionLocked = false;
   closedForNow = false;
