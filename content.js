@@ -157,6 +157,7 @@ function createHud() {
 
     <div class="drift-hud-body" data-k="body">
       <div class="drift-hud-row"><span>Session</span><strong data-k="session">00:00</strong></div>
+      <div class="drift-hud-row"><span>Drift</span><strong data-k="drift-on">On</strong></div>
       <div class="drift-hud-row"><span>Scroll momentum</span><strong data-k="scroll">0s</strong></div>
       <div class="drift-hud-row"><span>Scroll events</span><strong data-k="scroll-events">0</strong></div>
       <div class="drift-hud-row"><span>Switches</span><strong data-k="switches">0</strong></div>
