@@ -369,46 +369,54 @@ function triggerPrompt(reason, force = false) {
     el.addEventListener('focus', cancelIgnoreOnInput, { once: true });
   });
 
-  overlay.querySelector('[data-act="continue"]').onclick = () => {
-    const checkin = collectCheckin(overlay);
-    if (!validateRequiredCheckin(overlay, checkin)) return;
-    reflectionChoice = 'continue_intentionally';
-    intentionalResets += 1;
-    scrollMomentumSeconds = 0;
-    closeOverlay(overlay);
-  };
+  overlay.addEventListener('click', (e) => {
+    const actionEl = e.target.closest('[data-act]');
+    if (!actionEl) return;
+    e.preventDefault();
+    e.stopPropagation();
 
-  overlay.querySelector('[data-act="pause"]').onclick = () => {
-    const checkin = collectCheckin(overlay);
-    if (!validateRequiredCheckin(overlay, checkin)) return;
-    reflectionChoice = 'pause_two_minutes';
-    socialLockoutUntil = Date.now() + DRIFT.RESET_DURATION_SECONDS * 1000;
-    chrome.runtime.sendMessage({
-      type: 'START_SOCIAL_LOCKOUT',
-      durationSeconds: DRIFT.RESET_DURATION_SECONDS,
-    });
-    closeOverlay(overlay);
-  };
+    const action = actionEl.getAttribute('data-act');
+    if (!action) return;
 
-  overlay.querySelector('[data-act="close"]').onclick = () => {
     const checkin = collectCheckin(overlay);
     if (!validateRequiredCheckin(overlay, checkin)) return;
-    reflectionChoice = 'close_for_now';
-    closedForNow = true;
-    socialLockoutUntil = Date.now() + DRIFT.CLOSE_LOCKOUT_SECONDS * 1000;
-    chrome.runtime.sendMessage({
-      type: 'START_SOCIAL_LOCKOUT',
-      durationSeconds: DRIFT.CLOSE_LOCKOUT_SECONDS,
-    });
-    chrome.runtime.sendMessage({ type: 'CLOSE_ACTIVE_TAB' });
-    closeOverlay(overlay);
-  };
 
-  overlay.querySelector('[data-act="feedback"]').onclick = () => {
-    const checkin = collectCheckin(overlay);
-    if (!validateRequiredCheckin(overlay, checkin)) return;
-    openRelaxingVideo();
-  };
+    if (action === 'continue') {
+      reflectionChoice = 'continue_intentionally';
+      intentionalResets += 1;
+      scrollMomentumSeconds = 0;
+      closeOverlay(overlay);
+      return;
+    }
+
+    if (action === 'pause') {
+      reflectionChoice = 'pause_two_minutes';
+      socialLockoutUntil = Date.now() + DRIFT.RESET_DURATION_SECONDS * 1000;
+      chrome.runtime.sendMessage({
+        type: 'START_SOCIAL_LOCKOUT',
+        durationSeconds: DRIFT.RESET_DURATION_SECONDS,
+      });
+      closeOverlay(overlay);
+      return;
+    }
+
+    if (action === 'close') {
+      reflectionChoice = 'close_for_now';
+      closedForNow = true;
+      socialLockoutUntil = Date.now() + DRIFT.CLOSE_LOCKOUT_SECONDS * 1000;
+      chrome.runtime.sendMessage({
+        type: 'START_SOCIAL_LOCKOUT',
+        durationSeconds: DRIFT.CLOSE_LOCKOUT_SECONDS,
+      });
+      chrome.runtime.sendMessage({ type: 'CLOSE_ACTIVE_TAB' });
+      closeOverlay(overlay);
+      return;
+    }
+
+    if (action === 'feedback') {
+      openRelaxingVideo();
+    }
+  });
 
 }
 
