@@ -1,5 +1,5 @@
 const DRIFT = {
-  SCROLL_THRESHOLD_SECONDS: 120,
+  SCROLL_THRESHOLD_SECONDS: 10 * 60,
   APP_SWITCH_THRESHOLD: 5,
   NIGHTLY_OVERUSE_SECONDS: 20 * 60,
   BASE_PROMPT_COOLDOWN_SECONDS: 45,
@@ -347,6 +347,7 @@ function triggerPrompt(reason, force = false) {
   `;
 
   document.documentElement.appendChild(overlay);
+  pauseVisibleMedia();
   updateHud();
 
   const ignoreSeconds =
@@ -442,6 +443,18 @@ function triggerPrompt(reason, force = false) {
     });
   });
 
+}
+
+function pauseVisibleMedia() {
+  // Best-effort pause for social feeds (YouTube/TikTok/Instagram).
+  const videos = Array.from(document.querySelectorAll('video'));
+  for (const video of videos) {
+    try {
+      if (!video.paused) video.pause();
+    } catch {
+      // ignore
+    }
+  }
 }
 
 function collectCheckin(overlay) {
