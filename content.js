@@ -338,6 +338,8 @@ function triggerPrompt(reason, force = false) {
 
       <button data-act="continue">Continue session</button>
       <button data-act="pause">Pause for 2 minutes</button>
+      <button data-act="break-5">Take 5 minute break</button>
+      <button data-act="break-10">Take 10 minute break</button>
       <button data-act="close">Close for now</button>
       <button data-act="feedback" class="drift-prev">Write feedback</button>
       <small>Trigger: ${humanReason(reason)} • Site: ${escapeHtml(currentSite.host || location.hostname)}</small>
@@ -405,12 +407,25 @@ function triggerPrompt(reason, force = false) {
       return;
     }
 
+    if (action === 'break-5') {
+      reflectionChoice = 'break_5';
+      startLockoutWithVideo(5 * 60, BREAK_VIDEO_5);
+      closeOverlay(overlay);
+      return;
+    }
+
+    if (action === 'break-10') {
+      reflectionChoice = 'break_10';
+      startLockoutWithVideo(10 * 60, BREAK_VIDEO_10);
+      closeOverlay(overlay);
+      return;
+    }
+
     if (action === 'close') {
       reflectionChoice = 'close_for_now';
-      openBreakModal(() => {
-        closedForNow = true;
-        closeOverlay(overlay);
-      });
+      closedForNow = true;
+      chrome.runtime.sendMessage({ type: 'CLOSE_ACTIVE_TAB' });
+      closeOverlay(overlay);
       return;
     }
 
@@ -465,50 +480,6 @@ function validateRequiredCheckin(overlay, checkin) {
 
 function openRelaxingVideo() {
   chrome.runtime.sendMessage({ type: 'OPEN_URL', url: RELAXING_VIDEO_URL });
-}
-
-function openBreakModal(onComplete) {
-  if (document.getElementById('drift-break-modal')) return;
-
-  const modal = document.createElement('div');
-  modal.id = 'drift-break-modal';
-  modal.className = 'drift-inline-overlay';
-  modal.innerHTML = `
-    <div class="drift-card drift-modal-card">
-      <p class="drift-chip">Close for now</p>
-      <h2>Choose a break length</h2>
-      <p>We can close this tab and start a short reset video.</p>
-      <div class="drift-modal-actions">
-        <button data-act="break-5">5 minute break</button>
-        <button data-act="break-10">10 minute break</button>
-        <button data-act="break-none" class="drift-prev">Close without break</button>
-      </div>
-    </div>
-  `;
-  document.documentElement.appendChild(modal);
-
-  const closeModal = () => modal.remove();
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeModal();
-  });
-
-  modal.querySelector('[data-act="break-5"]').onclick = () => {
-    startLockoutWithVideo(5 * 60, BREAK_VIDEO_5);
-    closeModal();
-    onComplete?.();
-  };
-
-  modal.querySelector('[data-act="break-10"]').onclick = () => {
-    startLockoutWithVideo(10 * 60, BREAK_VIDEO_10);
-    closeModal();
-    onComplete?.();
-  };
-
-  modal.querySelector('[data-act="break-none"]').onclick = () => {
-    closeModal();
-    chrome.runtime.sendMessage({ type: 'CLOSE_ACTIVE_TAB' });
-    onComplete?.();
-  };
 }
 
 function startLockoutWithVideo(durationSeconds, url) {
