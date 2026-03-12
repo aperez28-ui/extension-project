@@ -371,6 +371,7 @@ function triggerPrompt(reason, force = false) {
     el.addEventListener('focus', cancelIgnoreOnInput, { once: true });
   });
 
+  // Capture clicks before page-level handlers (e.g. YouTube).
   overlay.addEventListener('click', (e) => {
     const actionEl = e.target.closest('[data-act]');
     if (!actionEl) return;
@@ -419,6 +420,14 @@ function triggerPrompt(reason, force = false) {
     if (action === 'feedback') {
       openRelaxingVideo();
     }
+  }, true);
+
+  // Also bind directly to buttons for reliability.
+  overlay.querySelectorAll('[data-act]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    });
   });
 
 }
