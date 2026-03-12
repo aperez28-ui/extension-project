@@ -150,14 +150,12 @@ function createHud() {
         <div class="drift-hud-title">Drift</div>
         <div class="drift-hud-site" data-k="site">${location.hostname}</div>
       </div>
-      <div class="drift-hud-status" data-k="status-pill">Drift on</div>
       <div class="drift-hud-head-time" data-k="head-time">00:00</div>
       <button class="drift-hud-toggle" data-act="toggle" aria-label="Toggle Drift HUD">−</button>
     </div>
 
     <div class="drift-hud-body" data-k="body">
       <div class="drift-hud-row"><span>Session</span><strong data-k="session">00:00</strong></div>
-      <div class="drift-hud-row"><span>Drift</span><strong data-k="drift-on">On</strong></div>
       <div class="drift-hud-row"><span>Scroll momentum</span><strong data-k="scroll">0s</strong></div>
       <div class="drift-hud-row"><span>Scroll events</span><strong data-k="scroll-events">0</strong></div>
       <div class="drift-hud-row"><span>Switches</span><strong data-k="switches">0</strong></div>
@@ -627,7 +625,8 @@ function updateHud() {
   const lockoutRemaining = getLockoutRemainingSeconds();
 
   hud.querySelector('[data-k="session"]').textContent = sessionClock;
-  hud.querySelector('[data-k="head-time"]').textContent = sessionClock;
+  hud.querySelector('[data-k="head-time"]').textContent =
+    focusRemaining > 0 ? formatClock(focusRemaining) : sessionClock;
   hud.querySelector('[data-k="scroll"]').textContent = `${scrollMomentumSeconds}s`;
   hud.querySelector('[data-k="scroll-events"]').textContent = String(totalScrollEvents);
   hud.querySelector('[data-k="switches"]').textContent = String(totalSwitches);

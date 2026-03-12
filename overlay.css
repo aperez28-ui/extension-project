@@ -54,19 +54,6 @@
   text-overflow: ellipsis;
 }
 
-.drift-hud-status {
-  margin-left: auto;
-  align-self: center;
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #5a5247;
-  padding: 4px 8px;
-  border-radius: 999px;
-  border: 1px solid rgba(200, 189, 172, 0.7);
-  background: rgba(244, 238, 229, 0.7);
-}
-
 .drift-hud-head-time {
   display: none;
   font-size: 14px;
