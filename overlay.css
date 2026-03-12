@@ -15,7 +15,8 @@
 }
 
 #drift-hud.drift-collapsed {
-  width: 124px;
+  width: auto;
+  padding: 6px 6px 6px 8px;
 }
 
 #drift-hud.drift-collapsed .drift-hud-body,
@@ -56,7 +57,7 @@
 
 .drift-hud-head-time {
   display: none;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: #3f382f;
 }
