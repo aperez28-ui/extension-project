@@ -2,6 +2,8 @@ const SWITCH_WINDOW_MS = 90 * 1000;
 const MAX_SITE_HISTORY = 3;
 const RELAXING_VIDEO_URL = 'https://www.youtube.com/watch?v=lqxMyk31xII';
 const RELAXING_VIDEO_ID = 'lqxMyk31xII';
+const BREAK_VIDEO_5 = 'https://www.youtube.com/watch?v=40tPuU6jrgQ';
+const BREAK_VIDEO_10 = 'https://www.youtube.com/watch?v=KNdjMEcG0mw';
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.set({
@@ -41,7 +43,9 @@ function isSocialUrl(url = '') {
 function isRelaxingVideo(url = '') {
   try {
     const u = new URL(url);
-    if (!(u.hostname.includes('youtube.com') && u.pathname === '/watch' && u.searchParams.get('v') === RELAXING_VIDEO_ID)) {
+    const vid = u.searchParams.get('v');
+    const allowedIds = new Set([RELAXING_VIDEO_ID, new URL(BREAK_VIDEO_5).searchParams.get('v'), new URL(BREAK_VIDEO_10).searchParams.get('v')]);
+    if (!(u.hostname.includes('youtube.com') && u.pathname === '/watch' && allowedIds.has(vid))) {
       return false;
     }
     // Treat only the canonical video URL as valid during lockout.
@@ -177,6 +181,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         lockoutActive && isSocialUrl(msg.url) && !isRelaxingVideo(msg.url) ? RELAXING_VIDEO_URL : msg.url;
       chrome.tabs.update(tabId, { url: target });
     });
+    return;
+  }
+
+  if (msg?.type === 'OPEN_URL_NEW_TAB') {
+    const url = msg.url;
+    if (!isTrackableUrl(url)) return;
+    chrome.tabs.create({ url });
     return;
   }
 

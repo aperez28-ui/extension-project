@@ -11,6 +11,8 @@ const DRIFT = {
 };
 
 const RELAXING_VIDEO_URL = 'https://www.youtube.com/watch?v=lqxMyk31xII';
+const BREAK_VIDEO_5 = 'https://www.youtube.com/watch?v=40tPuU6jrgQ';
+const BREAK_VIDEO_10 = 'https://www.youtube.com/watch?v=KNdjMEcG0mw';
 const SOCIAL_HOST_PATTERNS = [
   /(^|\.)youtube\.com$/,
   /(^|\.)tiktok\.com$/,
@@ -405,14 +407,10 @@ function triggerPrompt(reason, force = false) {
 
     if (action === 'close') {
       reflectionChoice = 'close_for_now';
-      closedForNow = true;
-      socialLockoutUntil = Date.now() + DRIFT.CLOSE_LOCKOUT_SECONDS * 1000;
-      chrome.runtime.sendMessage({
-        type: 'START_SOCIAL_LOCKOUT',
-        durationSeconds: DRIFT.CLOSE_LOCKOUT_SECONDS,
+      openBreakModal(() => {
+        closedForNow = true;
+        closeOverlay(overlay);
       });
-      chrome.runtime.sendMessage({ type: 'CLOSE_ACTIVE_TAB' });
-      closeOverlay(overlay);
       return;
     }
 
@@ -467,6 +465,60 @@ function validateRequiredCheckin(overlay, checkin) {
 
 function openRelaxingVideo() {
   chrome.runtime.sendMessage({ type: 'OPEN_URL', url: RELAXING_VIDEO_URL });
+}
+
+function openBreakModal(onComplete) {
+  if (document.getElementById('drift-break-modal')) return;
+
+  const modal = document.createElement('div');
+  modal.id = 'drift-break-modal';
+  modal.className = 'drift-inline-overlay';
+  modal.innerHTML = `
+    <div class="drift-card drift-modal-card">
+      <p class="drift-chip">Close for now</p>
+      <h2>Choose a break length</h2>
+      <p>We can close this tab and start a short reset video.</p>
+      <div class="drift-modal-actions">
+        <button data-act="break-5">5 minute break</button>
+        <button data-act="break-10">10 minute break</button>
+        <button data-act="break-none" class="drift-prev">Close without break</button>
+      </div>
+    </div>
+  `;
+  document.documentElement.appendChild(modal);
+
+  const closeModal = () => modal.remove();
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  modal.querySelector('[data-act="break-5"]').onclick = () => {
+    startLockoutWithVideo(5 * 60, BREAK_VIDEO_5);
+    closeModal();
+    onComplete?.();
+  };
+
+  modal.querySelector('[data-act="break-10"]').onclick = () => {
+    startLockoutWithVideo(10 * 60, BREAK_VIDEO_10);
+    closeModal();
+    onComplete?.();
+  };
+
+  modal.querySelector('[data-act="break-none"]').onclick = () => {
+    closeModal();
+    chrome.runtime.sendMessage({ type: 'CLOSE_ACTIVE_TAB' });
+    onComplete?.();
+  };
+}
+
+function startLockoutWithVideo(durationSeconds, url) {
+  socialLockoutUntil = Date.now() + durationSeconds * 1000;
+  chrome.runtime.sendMessage({
+    type: 'START_SOCIAL_LOCKOUT',
+    durationSeconds,
+  });
+  chrome.runtime.sendMessage({ type: 'OPEN_URL_NEW_TAB', url });
+  chrome.runtime.sendMessage({ type: 'CLOSE_ACTIVE_TAB' });
 }
 
 function openTimerModal() {
