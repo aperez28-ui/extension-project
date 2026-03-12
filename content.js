@@ -149,6 +149,7 @@ function createHud() {
         <div class="drift-hud-title">Drift</div>
         <div class="drift-hud-site" data-k="site">${location.hostname}</div>
       </div>
+      <div class="drift-hud-status" data-k="status-pill">Drift on</div>
       <div class="drift-hud-head-time" data-k="head-time">00:00</div>
       <button class="drift-hud-toggle" data-act="toggle" aria-label="Toggle Drift HUD">−</button>
     </div>
