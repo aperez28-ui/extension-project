@@ -348,6 +348,9 @@ function triggerPrompt(reason, force = false) {
   document.documentElement.appendChild(overlay);
   updateHud();
 
+  const ignoreSeconds =
+    reason === 'focus_timer_complete' || reason === 'focus_timer_check' ? 60 : DRIFT.IGNORE_TIMEOUT_SECONDS;
+
   ignoreTimer = setTimeout(() => {
     if (!overlayOpen) return;
     const checkin = collectCheckin(overlay);
@@ -355,7 +358,20 @@ function triggerPrompt(reason, force = false) {
     if (checkin.feeling && checkin.intent) return;
     ignoredPrompts += 1;
     closeOverlay(overlay);
-  }, DRIFT.IGNORE_TIMEOUT_SECONDS * 1000);
+  }, ignoreSeconds * 1000);
+
+  const cancelIgnoreOnInput = () => {
+    if (ignoreTimer) {
+      clearTimeout(ignoreTimer);
+      ignoreTimer = null;
+    }
+  };
+
+  overlay.querySelectorAll('select, input, textarea').forEach((el) => {
+    el.addEventListener('input', cancelIgnoreOnInput, { once: true });
+    el.addEventListener('change', cancelIgnoreOnInput, { once: true });
+    el.addEventListener('focus', cancelIgnoreOnInput, { once: true });
+  });
 
   overlay.querySelector('[data-act="continue"]').onclick = () => {
     const checkin = collectCheckin(overlay);
