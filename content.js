@@ -333,15 +333,10 @@ function triggerPrompt(reason, force = false) {
       </label>
       <p class="drift-error" data-k="error" hidden>Please complete feeling and what you need before continuing.</p>
 
-      <button data-act="continue">Continue with awareness</button>
+      <button data-act="continue">Continue session</button>
       <button data-act="pause">Pause for 2 minutes</button>
       <button data-act="close">Close for now</button>
       <button data-act="feedback" class="drift-prev">Write feedback</button>
-      ${
-        lastSite
-          ? `<button data-act="prev" class="drift-prev">Go to previous site (${escapeHtml(lastSite.host)})</button>`
-          : ''
-      }
       <small>Trigger: ${humanReason(reason)} • Site: ${escapeHtml(currentSite.host || location.hostname)}</small>
     </div>
   `;
@@ -415,12 +410,6 @@ function triggerPrompt(reason, force = false) {
     openRelaxingVideo();
   };
 
-  const prevBtn = overlay.querySelector('[data-act="prev"]');
-  if (prevBtn && lastSite?.url) {
-    prevBtn.onclick = () => {
-      chrome.runtime.sendMessage({ type: 'OPEN_URL', url: lastSite.url });
-    };
-  }
 }
 
 function collectCheckin(overlay) {
