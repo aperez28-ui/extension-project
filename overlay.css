@@ -35,6 +35,12 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 8px;
+  cursor: grab;
+  user-select: none;
+}
+
+.drift-dragging .drift-hud-head {
+  cursor: grabbing;
 }
 
 .drift-hud-title {

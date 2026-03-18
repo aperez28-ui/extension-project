@@ -58,6 +58,7 @@ let interactionLocked = false;
 let closedForNow = false;
 let ignoreTimer = null;
 let hud = null;
+let hudDrag = { active: false, offsetX: 0, offsetY: 0 };
 
 if (isSocialSite()) {
   if (window.top !== window.self) {
@@ -151,6 +152,9 @@ function hydrateContext() {
     currentSite = ctx.currentSite || currentSite;
     siteHistory = ctx.siteHistory?.length ? ctx.siteHistory : siteHistory;
     socialLockoutUntil = ctx.socialLockoutUntil || 0;
+    if (ctx.hudPosition && hud) {
+      setHudPosition(ctx.hudPosition.x, ctx.hudPosition.y);
+    }
     const collapsed = ctx.hudCollapsed === undefined ? true : Boolean(ctx.hudCollapsed);
     hud.classList.toggle('drift-collapsed', collapsed);
 
@@ -165,7 +169,7 @@ function createHud() {
   const el = document.createElement('aside');
   el.id = 'drift-hud';
   el.innerHTML = `
-    <div class="drift-hud-head">
+    <div class="drift-hud-head" data-act="drag">
       <div class="drift-hud-brand">
         <div class="drift-hud-title">Drift</div>
         <div class="drift-hud-site" data-k="site">${location.hostname}</div>
@@ -234,6 +238,37 @@ function wireHudInteractions() {
       chrome.runtime.sendMessage({ type: 'OPEN_URL', url: siteBtn.dataset.url });
     }
   });
+
+  const onPointerDown = (e) => {
+    const dragEl = e.target.closest('[data-act=\"drag\"]');
+    const toggleEl = e.target.closest('[data-act=\"toggle\"]');
+    if (!dragEl || toggleEl) return;
+    e.preventDefault();
+    hudDrag.active = true;
+    const rect = hud.getBoundingClientRect();
+    hudDrag.offsetX = e.clientX - rect.left;
+    hudDrag.offsetY = e.clientY - rect.top;
+    hud.classList.add('drift-dragging');
+  };
+
+  const onPointerMove = (e) => {
+    if (!hudDrag.active) return;
+    e.preventDefault();
+    const x = Math.max(8, Math.min(window.innerWidth - hud.offsetWidth - 8, e.clientX - hudDrag.offsetX));
+    const y = Math.max(8, Math.min(window.innerHeight - hud.offsetHeight - 8, e.clientY - hudDrag.offsetY));
+    setHudPosition(x, y);
+  };
+
+  const onPointerUp = () => {
+    if (!hudDrag.active) return;
+    hudDrag.active = false;
+    hud.classList.remove('drift-dragging');
+    persistHudPosition();
+  };
+
+  hud.addEventListener('pointerdown', onPointerDown);
+  window.addEventListener('pointermove', onPointerMove);
+  window.addEventListener('pointerup', onPointerUp);
 }
 
 function handleScrollEvent(source) {
@@ -757,6 +792,22 @@ function resetSessionState() {
   overlayOpen = false;
   interactionLocked = false;
   closedForNow = false;
+}
+
+function setHudPosition(x, y) {
+  hud.style.left = `${Math.round(x)}px`;
+  hud.style.top = `${Math.round(y)}px`;
+  hud.style.right = 'auto';
+  hud.style.bottom = 'auto';
+}
+
+function persistHudPosition() {
+  if (!hud) return;
+  const rect = hud.getBoundingClientRect();
+  chrome.runtime.sendMessage({
+    type: 'SET_HUD_POSITION',
+    value: { x: Math.round(rect.left), y: Math.round(rect.top) },
+  });
 }
 
 function attachMediaSync() {

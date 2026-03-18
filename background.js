@@ -18,6 +18,7 @@ chrome.runtime.onInstalled.addListener(() => {
     scrollEventTotal: 0,
     scrollEventsByHost: {},
     socialLockoutUntil: 0,
+    hudPosition: null,
   });
 });
 
@@ -153,6 +154,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         'hudCollapsed',
         'scrollEventTotal',
         'socialLockoutUntil',
+        'hudPosition',
       ])
       .then((data) => {
         const now = Date.now();
@@ -166,6 +168,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           hudCollapsed: Boolean(data.hudCollapsed),
           scrollEventTotal: data.scrollEventTotal || 0,
           socialLockoutUntil: lockoutUntil,
+          hudPosition: data.hudPosition || null,
         });
       });
     return true;
@@ -195,6 +198,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
   if (msg?.type === 'SET_HUD_COLLAPSED') {
     chrome.storage.local.set({ hudCollapsed: Boolean(msg.value) });
+  }
+
+  if (msg?.type === 'SET_HUD_POSITION') {
+    chrome.storage.local.set({ hudPosition: msg.value || null });
   }
 
   if (msg?.type === 'CLOSE_ACTIVE_TAB') {
