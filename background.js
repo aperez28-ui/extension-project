@@ -180,15 +180,17 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       const target =
         lockoutActive && isSocialUrl(msg.url) && !isRelaxingVideo(msg.url) ? RELAXING_VIDEO_URL : msg.url;
       chrome.tabs.update(tabId, { url: target });
+      if (sendResponse) sendResponse({ ok: true });
     });
-    return;
+    return true;
   }
 
   if (msg?.type === 'OPEN_URL_NEW_TAB') {
     const url = msg.url;
     if (!isTrackableUrl(url)) return;
     chrome.tabs.create({ url });
-    return;
+    if (sendResponse) sendResponse({ ok: true });
+    return true;
   }
 
   if (msg?.type === 'SET_HUD_COLLAPSED') {

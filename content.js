@@ -510,7 +510,11 @@ function validateRequiredCheckin(overlay, checkin) {
 }
 
 function openRelaxingVideo() {
-  chrome.runtime.sendMessage({ type: 'OPEN_URL', url: RELAXING_VIDEO_URL });
+  chrome.runtime.sendMessage({ type: 'OPEN_URL', url: RELAXING_VIDEO_URL }, () => {
+    if (chrome.runtime.lastError) {
+      window.open(RELAXING_VIDEO_URL, '_blank', 'noopener');
+    }
+  });
 }
 
 function openFeedbackForm(checkin) {
@@ -518,7 +522,12 @@ function openFeedbackForm(checkin) {
   url.searchParams.set(FEEDBACK_FIELDS.feeling, checkin.feeling || '');
   url.searchParams.set(FEEDBACK_FIELDS.need, checkin.intent || '');
   url.searchParams.set(FEEDBACK_FIELDS.note, checkin.note || '');
-  chrome.runtime.sendMessage({ type: 'OPEN_URL_NEW_TAB', url: url.toString() });
+  const target = url.toString();
+  chrome.runtime.sendMessage({ type: 'OPEN_URL_NEW_TAB', url: target }, () => {
+    if (chrome.runtime.lastError) {
+      window.open(target, '_blank', 'noopener');
+    }
+  });
 }
 
 function startLockoutWithVideo(durationSeconds, url) {
@@ -527,8 +536,15 @@ function startLockoutWithVideo(durationSeconds, url) {
     type: 'START_SOCIAL_LOCKOUT',
     durationSeconds,
   });
-  chrome.runtime.sendMessage({ type: 'OPEN_URL_NEW_TAB', url });
-  chrome.runtime.sendMessage({ type: 'CLOSE_ACTIVE_TAB' });
+  chrome.runtime.sendMessage({ type: 'OPEN_URL_NEW_TAB', url }, () => {
+    if (chrome.runtime.lastError) {
+      window.open(url, '_blank', 'noopener');
+    }
+    // Close the current tab after the new tab is opened.
+    setTimeout(() => {
+      chrome.runtime.sendMessage({ type: 'CLOSE_ACTIVE_TAB' });
+    }, 200);
+  });
 }
 
 function openTimerModal() {
