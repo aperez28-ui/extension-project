@@ -58,6 +58,7 @@ let interactionLocked = false;
 let closedForNow = false;
 let ignoreTimer = null;
 let hud = null;
+let lockoutOverlay = null;
 let hudDrag = { active: false, offsetX: 0, offsetY: 0 };
 
 if (isSocialSite()) {
@@ -134,6 +135,7 @@ function init() {
     }
 
     updateHud();
+    updateLockoutOverlay();
     evaluateDrift();
   }, 1000);
 
@@ -792,6 +794,34 @@ function resetSessionState() {
   overlayOpen = false;
   interactionLocked = false;
   closedForNow = false;
+}
+
+function updateLockoutOverlay() {
+  const remaining = getLockoutRemainingSeconds();
+  if (remaining <= 0) {
+    if (lockoutOverlay) {
+      lockoutOverlay.remove();
+      lockoutOverlay = null;
+    }
+    return;
+  }
+
+  if (!lockoutOverlay) {
+    lockoutOverlay = document.createElement('div');
+    lockoutOverlay.id = 'drift-lockout';
+    lockoutOverlay.className = 'drift-lockout';
+    lockoutOverlay.innerHTML = `
+      <div class="drift-card drift-lockout-card">
+        <p class="drift-chip">Break in progress</p>
+        <h2>Time remaining</h2>
+        <p class="drift-lockout-time" data-k="lockout-time">00:00</p>
+      </div>
+    `;
+    document.documentElement.appendChild(lockoutOverlay);
+  }
+
+  const timeEl = lockoutOverlay.querySelector('[data-k="lockout-time"]');
+  if (timeEl) timeEl.textContent = formatClock(remaining);
 }
 
 function setHudPosition(x, y) {

@@ -194,6 +194,26 @@
   line-height: 1.35;
 }
 
+#drift-lockout.drift-lockout {
+  position: fixed;
+  right: 16px;
+  top: 16px;
+  z-index: 2147483646;
+  pointer-events: none;
+}
+
+.drift-lockout-card {
+  width: min(84vw, 240px);
+  text-align: center;
+}
+
+.drift-lockout-time {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 8px 0 0;
+  color: #353028;
+}
+
 #drift-overlay.drift-soft {
   background: rgba(34, 31, 26, 0.25);
   animation-duration: 1250ms;
