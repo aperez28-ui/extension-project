@@ -11,8 +11,8 @@ const DRIFT = {
 };
 
 const RELAXING_VIDEO_URL = 'https://www.youtube.com/watch?v=lqxMyk31xII';
-const BREAK_VIDEO_5 = 'https://www.youtube.com/watch?v=40tPuU6jrgQ';
-const BREAK_VIDEO_10 = 'https://www.youtube.com/watch?v=KNdjMEcG0mw';
+const BREAK_VIDEO_5 = 'https://www.youtube.com/watch?v=odzGsDTJKz4';
+const BREAK_VIDEO_10 = 'https://www.youtube.com/watch?v=L2HskDumo4U';
 const FEEDBACK_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSd8CZdx9dD9HhSuOpbTgx7ZRZFVMR1O27eIk6ARE4hJt3lV8g/viewform';
 const FEEDBACK_FIELDS = {
   feeling: 'entry.1698910244',
@@ -636,7 +636,10 @@ function openTimerModal() {
 }
 
 function openSessionFeedbackModal() {
-  if (document.getElementById('drift-session-feedback')) return;
+  const existing = document.getElementById('drift-session-feedback');
+  if (existing) {
+    existing.remove();
+  }
   if (overlayOpen) {
     const existing = document.getElementById('drift-overlay');
     if (existing) closeOverlay(existing);

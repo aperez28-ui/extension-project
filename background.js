@@ -2,8 +2,8 @@ const SWITCH_WINDOW_MS = 90 * 1000;
 const MAX_SITE_HISTORY = 3;
 const RELAXING_VIDEO_URL = 'https://www.youtube.com/watch?v=lqxMyk31xII';
 const RELAXING_VIDEO_ID = 'lqxMyk31xII';
-const BREAK_VIDEO_5 = 'https://www.youtube.com/watch?v=40tPuU6jrgQ';
-const BREAK_VIDEO_10 = 'https://www.youtube.com/watch?v=KNdjMEcG0mw';
+const BREAK_VIDEO_5 = 'https://www.youtube.com/watch?v=odzGsDTJKz4';
+const BREAK_VIDEO_10 = 'https://www.youtube.com/watch?v=L2HskDumo4U';
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.set({
@@ -45,7 +45,11 @@ function isRelaxingVideo(url = '') {
   try {
     const u = new URL(url);
     const vid = u.searchParams.get('v');
-    const allowedIds = new Set([RELAXING_VIDEO_ID, new URL(BREAK_VIDEO_5).searchParams.get('v'), new URL(BREAK_VIDEO_10).searchParams.get('v')]);
+    const allowedIds = new Set([
+      RELAXING_VIDEO_ID,
+      new URL(BREAK_VIDEO_5).searchParams.get('v'),
+      new URL(BREAK_VIDEO_10).searchParams.get('v'),
+    ]);
     if (!(u.hostname.includes('youtube.com') && u.pathname === '/watch' && allowedIds.has(vid))) {
       return false;
     }
