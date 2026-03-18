@@ -421,11 +421,7 @@ function triggerPrompt(reason, force = false) {
 
     if (action === 'pause') {
       reflectionChoice = 'pause_two_minutes';
-      socialLockoutUntil = Date.now() + DRIFT.RESET_DURATION_SECONDS * 1000;
-      chrome.runtime.sendMessage({
-        type: 'START_SOCIAL_LOCKOUT',
-        durationSeconds: DRIFT.RESET_DURATION_SECONDS,
-      });
+      startLockoutWithVideo(DRIFT.RESET_DURATION_SECONDS, RELAXING_VIDEO_URL);
       closeOverlay(overlay);
       return;
     }
