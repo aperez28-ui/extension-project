@@ -44,6 +44,11 @@ let focusTimerDurationSeconds = 0;
 let focusTimerEndTs = null;
 let socialLockoutUntil = 0;
 let nextCheckupAtTs = 0;
+let sessionPausedAt = 0;
+let sessionPausedMs = 0;
+let focusPausedAt = 0;
+let focusPausedMs = 0;
+let mediaPaused = false;
 
 let currentSite = { host: location.hostname, url: location.href };
 let siteHistory = [{ host: location.hostname, url: location.href }];
@@ -113,6 +118,11 @@ function init() {
       return;
     }
 
+    if (mediaPaused) {
+      updateHud();
+      return;
+    }
+
     const active = Date.now() - lastScrollTs <= 1500;
     if (active) scrollMomentumSeconds += 1;
     else scrollMomentumSeconds = Math.max(0, scrollMomentumSeconds - 2);
@@ -125,6 +135,8 @@ function init() {
     updateHud();
     evaluateDrift();
   }, 1000);
+
+  attachMediaSync();
 }
 
 function hydrateContext() {
@@ -244,12 +256,16 @@ function formatClock(totalSeconds) {
 }
 
 function getSessionSeconds() {
-  return Math.max(0, Math.floor((Date.now() - sessionStartTs) / 1000));
+  const now = Date.now();
+  const pausedTotal = sessionPausedMs + (sessionPausedAt ? now - sessionPausedAt : 0);
+  return Math.max(0, Math.floor((now - sessionStartTs - pausedTotal) / 1000));
 }
 
 function getFocusRemainingSeconds() {
   if (!focusTimerEndTs) return 0;
-  return Math.max(0, Math.floor((focusTimerEndTs - Date.now()) / 1000));
+  const now = Date.now();
+  const pausedTotal = focusPausedMs + (focusPausedAt ? now - focusPausedAt : 0);
+  return Math.max(0, Math.floor((focusTimerEndTs - now + pausedTotal) / 1000));
 }
 
 function getLockoutRemainingSeconds() {
@@ -708,6 +724,8 @@ function updateHud() {
 
 function resetSessionState() {
   sessionStartTs = Date.now();
+  sessionPausedAt = 0;
+  sessionPausedMs = 0;
   scrollMomentumSeconds = 0;
   lastScrollTs = 0;
   lastPromptTs = 0;
@@ -721,10 +739,56 @@ function resetSessionState() {
   sessionFeedbackLog = [];
   focusTimerDurationSeconds = 0;
   focusTimerEndTs = null;
+  focusPausedAt = 0;
+  focusPausedMs = 0;
   nextCheckupAtTs = 0;
   overlayOpen = false;
   interactionLocked = false;
   closedForNow = false;
+}
+
+function attachMediaSync() {
+  const setPaused = (paused) => {
+    if (paused === mediaPaused) return;
+    mediaPaused = paused;
+    if (paused) {
+      if (!sessionPausedAt) sessionPausedAt = Date.now();
+      if (focusTimerEndTs && !focusPausedAt) focusPausedAt = Date.now();
+    } else {
+      const now = Date.now();
+      if (sessionPausedAt) {
+        sessionPausedMs += now - sessionPausedAt;
+        sessionPausedAt = 0;
+      }
+      if (focusPausedAt) {
+        focusPausedMs += now - focusPausedAt;
+        focusPausedAt = 0;
+      }
+    }
+    updateHud();
+  };
+
+  const handleVideo = (video) => {
+    video.addEventListener('pause', () => setPaused(true));
+    video.addEventListener('play', () => setPaused(false));
+    video.addEventListener('playing', () => setPaused(false));
+  };
+
+  const initialVideos = Array.from(document.querySelectorAll('video'));
+  initialVideos.forEach(handleVideo);
+
+  const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      mutation.addedNodes.forEach((node) => {
+        if (node.nodeName === 'VIDEO') handleVideo(node);
+        if (node.querySelectorAll) {
+          node.querySelectorAll('video').forEach(handleVideo);
+        }
+      });
+    }
+  });
+
+  observer.observe(document.documentElement, { childList: true, subtree: true });
 }
 
 function cleanupInjectedUi() {
