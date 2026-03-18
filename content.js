@@ -13,6 +13,12 @@ const DRIFT = {
 const RELAXING_VIDEO_URL = 'https://www.youtube.com/watch?v=lqxMyk31xII';
 const BREAK_VIDEO_5 = 'https://www.youtube.com/watch?v=40tPuU6jrgQ';
 const BREAK_VIDEO_10 = 'https://www.youtube.com/watch?v=KNdjMEcG0mw';
+const FEEDBACK_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSd8CZdx9dD9HhSuOpbTgx7ZRZFVMR1O27eIk6ARE4hJt3lV8g/viewform';
+const FEEDBACK_FIELDS = {
+  feeling: 'entry.1698910244',
+  need: 'entry.1256480064',
+  note: 'entry.1424900406',
+};
 const SOCIAL_HOST_PATTERNS = [
   /(^|\.)youtube\.com$/,
   /(^|\.)tiktok\.com$/,
@@ -431,7 +437,7 @@ function triggerPrompt(reason, force = false) {
     }
 
     if (action === 'feedback') {
-      openRelaxingVideo();
+      openFeedbackForm(checkin);
     }
   }, true);
 
@@ -493,6 +499,14 @@ function validateRequiredCheckin(overlay, checkin) {
 
 function openRelaxingVideo() {
   chrome.runtime.sendMessage({ type: 'OPEN_URL', url: RELAXING_VIDEO_URL });
+}
+
+function openFeedbackForm(checkin) {
+  const url = new URL(FEEDBACK_FORM_URL);
+  url.searchParams.set(FEEDBACK_FIELDS.feeling, checkin.feeling || '');
+  url.searchParams.set(FEEDBACK_FIELDS.need, checkin.intent || '');
+  url.searchParams.set(FEEDBACK_FIELDS.note, checkin.note || '');
+  chrome.runtime.sendMessage({ type: 'OPEN_URL_NEW_TAB', url: url.toString() });
 }
 
 function startLockoutWithVideo(durationSeconds, url) {
